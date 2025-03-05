@@ -1,6 +1,7 @@
 package com.example.authentication.Controller;
 
 import com.example.authentication.Model.DTO.UserDetailsImpl;
+import com.example.authentication.Model.DTO.request.AuthRequest;
 import com.example.authentication.Model.DTO.request.LoginRequest;
 import com.example.authentication.Model.DTO.request.RegisterRequest;
 import com.example.authentication.Model.DTO.response.ApiResponse;
@@ -27,9 +28,20 @@ public class AuthController {
         return authService.login(loginRequest);
     }
     @PostMapping("/register")
-    public ApiResponse<?> getClaims(@RequestBody @Valid RegisterRequest request){
+    public ApiResponse<?> register(@RequestBody @Valid RegisterRequest request){
         return authService.register(request);
     }
+    @PostMapping("/logout")
+    public ApiResponse<?> logout(@RequestBody AuthRequest authRequest){
+        return authService.logout(authRequest);
+    }
+    @PostMapping("/refresh")
+    public ApiResponse<?> refresh(@RequestBody AuthRequest authRequest){
+        return authService.refresh(authRequest);
+    }
 
-
+    @PostMapping("/revoke")
+    public ApiResponse<?> revoke(@RequestBody AuthRequest authRequest){
+        return authService.revoke(authRequest);
+    }
 }

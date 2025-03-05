@@ -13,10 +13,7 @@ import org.springframework.http.MediaType;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class JwtUtils {
     public static String key = "1Vnio5sQsDXo1DLdkBbbtCXjzK4eGhpeVxiOX5bBy7c=\n";
@@ -25,6 +22,7 @@ public class JwtUtils {
 
     public static String generateToken(UserDetailsImpl userDetailsImpl, long expiration){
         return Jwts.builder()
+                .setId(UUID.randomUUID().toString())
                 .setSubject(userDetailsImpl.getUsername())
                 .setIssuer(userDetailsImpl.getFullname())
                 .claim("roles", UserDetailsImpl.convert(userDetailsImpl.getAuthorities()))
@@ -34,6 +32,14 @@ public class JwtUtils {
                 .compact();
     }
 
+    public static boolean isValidToken(String token, boolean isInvoked, boolean isExists){
+        Claims claims = extractClaims(token);
+
+        if(isInvoked || !isExists){
+            return false;
+        }
+        return true;
+    }
     public static SecretKey signKey(){
         return Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(key));
     }
@@ -63,4 +69,5 @@ public class JwtUtils {
         }
         return jwt;
     }
+
 }

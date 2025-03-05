@@ -1,8 +1,10 @@
 package com.example.authentication.configuration;
 
 import com.example.authentication.Model.DTO.UserDetailsImpl;
+import com.example.authentication.Repository.InvalidTokenRepository;
 import com.example.authentication.exception.ErrorCode;
 import com.example.authentication.utils.JwtUtils;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -27,6 +29,7 @@ import java.io.IOException;
 @Slf4j
 public class JwtFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
+    private final InvalidTokenRepository invalidTokenRepository;
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String jwt = JwtUtils.getTokenFromRequest(request);
@@ -39,7 +42,14 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // extract jwt lấy username
         try{
-            String username = JwtUtils.extractClaims(jwt).getSubject();
+            Claims claims = JwtUtils.extractClaims(jwt);
+
+//            nếu token đã bị thu hồi thì k cho vào
+            if(invalidTokenRepository.existsById(claims.getId())){
+                throw new UnsupportedJwtException("");
+            }
+
+            String username = claims.getSubject();
 
             // load userdetails
             UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsService.loadUserByUsername(username);
